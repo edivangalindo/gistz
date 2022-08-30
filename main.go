@@ -14,7 +14,7 @@ func main() {
 	// Check for stdin input
 	stat, _ := os.Stdin.Stat()
 	if (stat.Mode() & os.ModeCharDevice) != 0 {
-		fmt.Fprintln(os.Stderr, "No users detected. Hint: cat users.txt | download-users")
+		fmt.Fprintln(os.Stderr, "No users detected. Hint: cat users.txt | gistz")
 		os.Exit(1)
 	}
 

@@ -54,13 +54,12 @@ func downloadGists(user string) {
 
 	gists, resp, err := client.Gists.List(ctx, user, opt)
 	if err != nil {
-		fmt.Printf("Error: %s\n", err)
-
-		if resp.Remaining == 0 {
-			fmt.Printf("Rate limit exceeded, waitting for %+v minutes\n", resp.Rate.Reset.Sub(time.Now()).Minutes())
-			time.Sleep(resp.Rate.Reset.Sub(time.Now()))
+		if resp.StatusCode == 403 {
+			checkRateLimit(resp)
+			return
 		}
 
+		fmt.Printf("Error: %s\n", err)
 		return
 	}
 
@@ -68,13 +67,12 @@ func downloadGists(user string) {
 
 		gist, resp, err := client.Gists.Get(ctx, gist.GetID())
 		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-
-			if resp.Remaining == 0 {
-				fmt.Printf("Rate limit exceeded, waitting for %+v minutes\n", resp.Rate.Reset.Sub(time.Now()).Minutes())
-				time.Sleep(resp.Rate.Reset.Sub(time.Now()))
+			if resp.StatusCode == 403 {
+				checkRateLimit(resp)
+				return
 			}
 
+			fmt.Printf("Error: %s\n", err)
 			return
 		}
 
@@ -99,5 +97,12 @@ func downloadGists(user string) {
 			file.Close()
 
 		}
+	}
+}
+
+func checkRateLimit(resp *github.Response) {
+	if resp.Remaining == 0 {
+		fmt.Printf("Rate limit exceeded, waitting for %+v minutes\n", time.Until(resp.Rate.Reset.Time).Round(time.Minute).Minutes())
+		time.Sleep(time.Duration(time.Until(resp.Rate.Reset.Time).Minutes()) * time.Minute)
 	}
 }

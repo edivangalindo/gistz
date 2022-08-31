@@ -3,6 +3,10 @@ An easy way to dump gists.
 
 This is inspired in [secretz](https://github.com/lc/secretz) and [jenkinz](https://github.com/lc/jenkinz) created by [lc](https://github.com/lc) but applicated to Github gists.
 
+Pre-requisites:
+
+* You need to config an env called ```GH_AUTH_TOKEN``` with your personal access token, to do the requests
+
 ## Usage
 
 Download all gists from one user:
@@ -13,6 +17,11 @@ echo nat | gistz
 Download all gists from many users:
 ```
 cat users.txt | gistz
+```
+
+This works fine with [gh-members](https://github.com/edivangalindo/gh-members) to get gists from members of a organization:
+```
+echo github | gh-members | gistz
 ```
 
 ## Installation

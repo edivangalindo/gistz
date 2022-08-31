@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/google/go-github/github"
 	"golang.org/x/oauth2"
@@ -51,17 +52,29 @@ func downloadGists(user string) {
 
 	opt := &github.GistListOptions{}
 
-	gists, _, err := client.Gists.List(ctx, user, opt)
+	gists, resp, err := client.Gists.List(ctx, user, opt)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err)
+
+		if resp.Remaining == 0 {
+			fmt.Printf("Rate limit exceeded, waitting for %+v minutes\n", resp.Rate.Reset.Sub(time.Now()).Minutes())
+			time.Sleep(resp.Rate.Reset.Sub(time.Now()))
+		}
+
 		return
 	}
 
 	for _, gist := range gists {
 
-		gist, _, err := client.Gists.Get(ctx, gist.GetID())
+		gist, resp, err := client.Gists.Get(ctx, gist.GetID())
 		if err != nil {
 			fmt.Printf("Error: %s\n", err)
+
+			if resp.Remaining == 0 {
+				fmt.Printf("Rate limit exceeded, waitting for %+v minutes\n", resp.Rate.Reset.Sub(time.Now()).Minutes())
+				time.Sleep(resp.Rate.Reset.Sub(time.Now()))
+			}
+
 			return
 		}
 
